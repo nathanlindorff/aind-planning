@@ -210,6 +210,7 @@ class AirCargoProblem(Problem):
         condition.
         """
         # requires implemented PlanningGraph class
+        #print('in h_pg_levelsum')
         pg = PlanningGraph(self, node.state)
         pg_levelsum = pg.h_levelsum()
         return pg_levelsum
@@ -223,6 +224,27 @@ class AirCargoProblem(Problem):
         """
         # TODO implement (see Russell-Norvig Ed-3 10.2.3  or Russell-Norvig Ed-2 11.2)
         count = 0
+        #print('in h_ignore_preconditions')
+
+
+        # Get an instance of the PropKB
+        propkb = PropKB()
+
+        # Decode the state string into a FluentState object
+        state = decode_state(node.state, self.state_map)
+        #print(str(state.pos))
+        #print(state.pos_sentence())
+
+        # Tell the PropKB the current positive state, ignoring the negative.
+        propkb.tell(state.pos_sentence())
+
+        #print(str(propkb.clauses))
+        #print(str(self.goal))
+
+        # Count the remaining clauses in the goal that are yet to be fulfilled compared to the current state.
+        for clause in self.goal:
+            if clause not in propkb.clauses:
+                count += 1
         return count
 
 
